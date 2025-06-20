@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>INSPIRE - Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Variables for easy theme management (UPDATED COLOR PALETTE) */
+        :root {
+            /* Core Backgrounds & Elements */
+            --primary-dark-bg: #0D1A26; /* Very deep, almost black blue-grey for main background */
+            --secondary-card-bg: #1A2E44; /* Dark blue-grey for cards and sections */
+            --tertiary-hover-bg: #21354F; /* Slightly lighter dark blue-grey for subtle hovers */
+
+            /* Accent & Highlight Colors - Inspired by data visualization/neural networks */
+            --accent-main: #34D399; /* Bright, vibrant teal-green for primary highlights (similar to your teal, but more 'techy') */
+            --accent-light: #6EE7B7; /* Lighter version of accent-main for soft glows */
+            --accent-dark: #06B6D4; /* A complementary vibrant cyan/blue for secondary highlights */
+
+            /* Text Colors */
+            --text-heading: #E2E8F0; /* Off-white for prominent headings (for dark elements) */
+            --text-body: #A0AEC0; /* Light grey for main body text (for dark elements) */
+            --text-muted: #718096; /* Darker grey for subtle text/details (for dark elements) */
+
+            /* NEW: Text colors for light backgrounds */
+            --text-on-light: #333333; /* Standard dark text */
+            --text-on-light-muted: #666666; /* Muted text on light backgrounds */
+            --text-on-light-placeholder: #999999; /* Placeholder text on light backgrounds */
+
+
+            /* Borders & Shadows */
+            --border-subtle: rgba(255, 255, 255, 0.06); /* Very light border (for dark elements) */
+
+            /* NEW: Borders & Shadows for light backgrounds */
+            --border-light-subtle: #e0e0e0; /* Subtle border for light elements */
+            --shadow-light: rgba(0, 0, 0, 0.08); /* Softer shadow for light backgrounds */
+            --shadow-light-hover: rgba(0, 0, 0, 0.15); /* Slightly darker on hover */
+            --shadow-glow: rgba(52, 211, 153, 0.3); /* Accent-driven shadow glow (can be reused) */
+            --shadow-glow-light-variant: rgba(52, 211, 153, 0.2); /* Muted glow for light backgrounds */
+
+
+            /* Gradient Definitions */
+            --gradient-1-start: var(--accent-main); /* Teal-green */
+            --gradient-1-end: var(--accent-dark); /* Cyan-blue */
+            --gradient-2-start: #3498DB; /* Classic blue for secondary actions */
+            --gradient-2-end: #2980B9; /* Darker blue */
+
+            /* Specific Component Colors */
+            --header-backdrop: rgba(13, 26, 38, 0.95); /* Adjusted from original to be slightly more opaque */
+
+            /* NEW: Card background for light mode */
+            --light-card-bg: #ffffff; /* Pure white for the main form card */
+
+
+            /* Fonts */
+            --font-main: 'Inter', sans-serif; /* Your chosen font */
+            --font-heading: 'Inter', sans-serif; /* Keep Inter for consistency unless a specific display font is needed */
+        }
+
+       body {
+            font-family: var(--font-main);
+            background-color: #f6f5f6; /* Base light background */
+            color: var(--text-on-light); /* Dark text for contrast on light background */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Subtle animated background grid for depth */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; /* Adjust grid size */
+            opacity: 0.8;
+            z-index: -1;
+            pointer-events: none;
+            animation: pulseGrid 8s infinite alternate ease-in-out; /* Animation added */
+        }
+
+        /* --- Header Section --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background-color: var(--primary-dark-bg); /* Using backdrop variable (dark, as before) */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); /* Adjusted shadow for general use */
+            backdrop-filter: blur(8px); /* Slightly less blur for crispness */
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-subtle); /* Still subtle border for dark header */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%; /* Ensure header spans full width */
+            border-radius: 0 0 15px 15px;
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--accent-main); /* Main accent color for logo */
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 10px var(--shadow-glow); /* Accent-driven text shadow */
+            text-decoration: none;
+        }
+
+        .header-logo i {
+            font-size: 2rem;
+            color: var(--accent-main);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-text .tagline {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-heading); /* Light text for dark header */
+        }
+
+        .logo-text .company-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted); /* Muted light text for dark header */
+            opacity: 0.8;
+            margin-top: 2px;
+            line-height: 1;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 35px;
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted); /* Muted light text for dark header nav */
+            font-weight: 500;
+            font-size: 1.05rem;
+            padding: 8px 15px;
+            position: relative;
+            transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 3px;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-heading); /* Light text on hover for dark header nav */
+            background-color: var(--tertiary-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        nav a:hover::after {
+            width: 80%;
+        }
+
+        nav a.active {
+            color: var(--accent-main);
+            font-weight: 600;
+            background-color: rgba(52, 211, 153, 0.15);
+            transform: translateY(-2px);
+        }
+
+        nav a.active::after {
+            width: 100%;
+            background: var(--accent-main);
+        }
+
+        .header-auth {
+            display: flex;
+            gap: 25px;
+        }
+
+        .header-auth a {
+            text-decoration: none;
+            color: var(--text-muted); /* Muted light text for dark header auth links */
+            font-size: 0.98rem;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease; /* Added background-color and box-shadow to transition */
+            padding: 8px 15px; /* Added padding for consistency and button-like feel */
+            border-radius: 6px; /* Rounded corners */
+        }
+
+        .header-auth a:hover {
+            color: var(--text-heading); /* Light text on hover for dark header auth links */
+            transform: translateY(-2px);
+            background-color: var(--tertiary-hover-bg); /* Match nav hover background */
+        }
+
+        /* NEW CSS for active highlight in header-auth */
+        .header-auth a.active {
+            color: var(--primary-dark-bg); /* Dark text on bright button */
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            font-weight: 700; /* Bolder for active state */
+            transform: translateY(-2px); /* Maintain subtle lift */
+            box-shadow: 0 4px 15px var(--shadow-glow); /* Add a glow shadow */
+        }
+
+        .header-auth a.active:hover {
+            /* Keep the same active style on hover, or make it slightly more pronounced */
+            transform: translateY(-3px); /* Slightly more lift on hover for active */
+            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5); /* Stronger glow on hover */
+        }
+
+
+        /* --- Responsive Adjustments for Header --- */
+        @media (max-width: 992px) {
+            header {
+                padding: 20px 30px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .header-left {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+            nav ul {
+                width: 100%;
+                justify-content: center;
+                margin-left: 0;
+                gap: 20px;
+            }
+            .header-auth {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+            .header-left {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .header-logo {
+                font-size: 1.4rem;
+                gap: 10px;
+                flex-direction: row;
+            }
+            .header-logo i {
+                font-size: 1.8rem;
+                margin-bottom: 0;
+            }
+            .logo-text {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .company-name {
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 0.8rem;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            /* Adjustments for the form on small screens */
+            .form-container {
+                padding: 20px;
+                margin: 20px auto;
+                width: 95%;
+            }
+            .profile-pic-container {
+                margin-bottom: 25px; /* Adjust spacing for smaller screens */
+            }
+            .profile-pic-preview {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        /* --- Account Creation Form Styles --- */
+        main {
+            flex-grow: 1; /* Allows main content to fill vertical space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px; /* Padding around the form container */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-container {
+            background-color: var(--secondary-card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px var(--shadow-primary), 0 0 20px var(--shadow-glow);
+            width: 90%;
+            max-width: 600px; /* Slightly narrower for login as it has fewer fields */
+            margin: 50px auto;
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+                .form-container h2 {
+            color: var(--text-heading);
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.2);
+            position: relative;
+        }
+
+        .form-container h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-main), var(--accent-dark));
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+       .form-group label {
+            display: block;
+            color: var(--text-body);
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group input[type="tel"] {
+            width: 100%;
+            padding: 14px 18px;
+            background-color: var(--primary-dark-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-heading);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus,
+        .form-group input[type="tel"]:focus {
+             border-color: var(--accent-main);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-on-light-placeholder); /* Placeholder text color for light background */
+            opacity: 0.8;
+        }
+
+        /* Styles for the custom "Upload Photo" button */
+        .upload-button {
+            display: inline-flex; /* Use inline-flex for alignment with icon */
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            color: var(--primary-dark-bg); /* Dark text on bright gradient (good contrast) */
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem; /* Adjust font size */
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            text-shadow: none;
+            border: none; /* Ensure no default button border */
+            outline: none; /* Remove outline on focus */
+            user-select: none; /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+        }
+
+        .upload-button i {
+            margin-right: 10px;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 211, 153, 0.4);
+        }
+
+        .form-submit-btn {
+            width: 100%;
+            padding: 15px 25px;
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            color: var(--primary-dark-bg); /* Dark text on bright gradient */
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-shadow: none;
+            margin-top: 20px;
+        }
+
+        .form-submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 211, 153, 0.4);
+        }
+
+        .form-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: var(--text-on-light-muted); /* Muted text for the link line */
+        }
+
+        .form-link a {
+            color: var(--accent-main);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-link a:hover {
+            color: var(--accent-dark); /* Using accent-dark for hover */
+            text-decoration: underline;
+        }
+
+        /* --- Profile Picture Styles --- */
+        .profile-pic-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px; /* Space between image and upload button */
+        }
+
+        .profile-pic-preview {
+            width: 130px; /* Larger size for prominence */
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-main); /* Vibrant border */
+            box-shadow: 0 0 15px var(--shadow-glow-light-variant), 0 0 5px rgba(0,0,0,0.15); /* Glowing shadow (adjusted for light bg) */
+            transition: transform 0.3s ease;
+        }
+
+        .profile-pic-preview:hover {
+            transform: scale(1.05); /* Slight zoom on hover */
+        }
+
+        /* --- Footer Section (Added back for completeness) --- */
+        footer {
+            width: 100%;
+            padding: 20px 50px;
+            background-color: #343a40; /* Dark grey for footer, provides contrast */
+            color: #f8f9fa; /* Light text for footer */
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: auto; /* Pushes footer to the bottom */
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 15px 15px 0 0;
+        }
+
+
+        /* new css for this navigation bar  */
+
+
+/* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Variables for easy theme management (UPDATED COLOR PALETTE) */
+        :root {
+            /* Core Backgrounds & Elements */
+            --primary-dark-bg: #0D1A26; /* Very deep, almost black blue-grey for main background */
+            --secondary-card-bg: #1A2E44; /* Dark blue-grey for cards and sections */
+            --tertiary-hover-bg: #21354F; /* Slightly lighter dark blue-grey for subtle hovers */
+
+            /* Accent & Highlight Colors - Inspired by data visualization/neural networks */
+            --accent-main: #34D399; /* Bright, vibrant teal-green for primary highlights (similar to your teal, but more 'techy') */
+            --accent-light: #6EE7B7; /* Lighter version of accent-main for soft glows */
+            --accent-dark: #06B6D4; /* A complementary vibrant cyan/blue for secondary highlights */
+
+            /* Text Colors */
+            --text-heading: #E2E8F0; /* Off-white for prominent headings */
+            --text-body: #A0AEC0; /* Light grey for main body text */
+            --text-muted: #718096; /* Darker grey for subtle text/details */
+            --text-on-light: #334155; /* Dark text for light backgrounds */
+
+            /* Borders & Shadows */
+            --border-subtle: rgba(255, 255, 255, 0.06); /* Very light border */
+            --shadow-primary: rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+            --shadow-glow: rgba(52, 211, 153, 0.3); /* Accent-driven shadow glow */
+
+            /* Gradient Definitions */
+            --gradient-1-start: var(--accent-main); /* Teal-green */
+            --gradient-1-end: var(--accent-dark); /* Cyan-blue */
+            --gradient-2-start: #3498DB; /* Classic blue for secondary actions */
+            --gradient-2-end: #2980B9; /* Darker blue */
+
+            /* Specific Component Colors */
+            --header-backdrop: rgba(13, 26, 38, 0.85); /* Slightly transparent based on primary-dark-bg */
+            --button-danger: #E74C3C; /* Retain strong red for danger */
+            --button-success: #2ECC71; /* Slightly brighter green for success */
+
+            /* Fonts */
+            --font-main: 'Inter', sans-serif; /* Your chosen font */
+            --font-heading: 'Inter', sans-serif; /* Keep Inter for consistency unless a specific display font is needed */
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f6f5f6; /* Base light background */
+            color: var(--text-on-light); /* Dark text for contrast on light background */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Subtle animated background grid for depth */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; /* Adjust grid size */
+            opacity: 0.8;
+            z-index: -1;
+            pointer-events: none;
+            animation: pulseGrid 8s infinite alternate ease-in-out; /* Animation added */
+        }
+
+        @keyframes pulseGrid {
+            0% { background-color: rgba(52, 211, 153, 0.02); opacity: 0.8; }
+            50% { background-color: rgba(6, 182, 212, 0.02); opacity: 0.9; }
+            100% { background-color: rgba(52, 211, 153, 0.02); opacity: 0.8; }
+        }
+
+
+        /* --- Header Section --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background-color: var(--primary-dark-bg); /* Dark header */
+            box-shadow: 0 4px 15px var(--shadow-primary);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--accent-main);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 10px var(--shadow-glow);
+            text-decoration: none;
+        }
+
+        .header-logo i {
+            font-size: 2rem;
+            color: var(--accent-main);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-text .tagline {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-heading);
+        }
+
+        .logo-text .company-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            opacity: 0.8;
+            margin-top: 2px;
+            margin-right: 60px;
+            line-height: 1;
+        }
+
+        /* Hamburger Menu Toggle */
+        .mobile-menu-toggle {
+            display: none; /* Hidden by default on large screens */
+            font-size: 1.8rem;
+            color: var(--text-heading);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin-right: 20px; /* Space between toggle and logo */
+        }
+
+        .mobile-menu-toggle:hover {
+            background-color: var(--tertiary-hover-bg);
+            color: var(--accent-light);
+        }
+
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px; /* Slightly reduced gap between nav items */
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem; /* Reduced font size for nav text */
+            padding: 6px 12px; /* Reduced padding */
+            position: relative;
+            transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Slightly reduced gap between icon and text */
+        }
+
+        nav a i { /* Added style for icons in nav bar */
+            font-size: 1.05rem; /* Slightly reduced icon size to match smaller text */
+        }
+
+        /* --- Nav Hover Effect (Enhanced) --- */
+        nav a::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 3px;
+            width: 0;
+            /* height: 3px; // Old height */
+            height: 4px; /* Slightly thicker line for better visibility */
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-heading);
+            /* background-color: var(--tertiary-hover-bg); // Old hover background */
+            background-color: rgba(6, 182, 212, 0.1); /* Lighter, more subtle hover background using accent-dark */
+            transform: translateY(-2px);
+        }
+
+        nav a:hover::after {
+            width: 80%;
+        }
+
+        /* --- Nav Active Effect (Enhanced) --- */
+        nav a.active {
+            /* Old active color: rgb(180, 197, 86) */
+            color: var(--accent-light); /* Use a vibrant accent color for active link text */
+            font-weight: 700; /* Make it bolder */
+            /* Old active background: rgba(208, 218, 214, 0.15) */
+            background-color: rgba(52, 211, 153, 0.25); /* More pronounced background using accent-main with higher opacity */
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(52, 211, 153, 0.3); /* Subtle shadow for depth */
+        }
+
+        nav a.active::after {
+            width: 100%;
+            /* Old background: var(--accent-main) */
+            background: linear-gradient(90deg, var(--accent-light), var(--accent-main), var(--accent-dark)); /* More dynamic gradient for active line */
+            height: 5px; /* Make active line even more prominent */
+            box-shadow: 0 1px 5px rgba(52, 211, 153, 0.5); /* Add a subtle glow to the active line */
+        }
+
+        .header-auth {
+            display: flex;
+            gap: 20px; /* Slightly reduced gap between auth items */
+        }
+
+        /* --- AUTHENTICATION/USER LINKS WITH ICON ABOVE TEXT --- */
+        .header-auth a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.8rem; /* Even smaller font size for text below icon */
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            padding: 8px 10px; /* Adjusted padding to accommodate vertical layout */
+            border-radius: 6px;
+            
+            display: flex;
+            flex-direction: column; /* ICON ABOVE TEXT */
+            align-items: center; /* Center icon and text horizontally */
+            gap: 3px; /* Reduced vertical gap between icon and text */
+            line-height: 1.2; /* Tighter line height for stacked text */
+        }
+
+        .header-auth a i {
+            font-size: 1.1rem; /* Slightly larger icon to stand out more when above text */
+            margin-bottom: 2px; /* Small margin below icon */
+        }
+
+
+        .header-auth a:hover {
+            color: var(--text-heading);
+            transform: translateY(-2px);
+            background-color: var(--tertiary-hover-bg);
+        }
+
+        .header-auth a.active {
+            color: var(--primary-dark-bg);
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            font-weight: 700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow-glow);
+        }
+
+        .header-auth a.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5);
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 992px) {
+            /* Show hamburger, hide main nav */
+            .mobile-menu-toggle {
+                display: block; /* Show hamburger icon */
+            }
+            nav { /* Hide the full navigation on medium screens */
+                display: none;
+            }
+
+            header {
+                padding: 20px 30px;
+                flex-wrap: wrap;
+                justify-content: space-between; /* Keep logo and toggle separated */
+                gap: 15px;
+            }
+            .header-left {
+                width: auto; /* Allow header-left to shrink */
+                justify-content: flex-start; /* Align logo and toggle to the left */
+                gap: 15px;
+            }
+            /* nav ul { Moved to 'nav' selector above } */
+
+            .header-auth {
+                width: 100%; /* Make auth section take full width below header-left */
+                justify-content: center;
+                margin-top: 10px;
+                gap: 15px; /* Adjusted gap for smaller screens */
+            }
+            /* Ensure vertical stack on larger mobile/tablet too */
+            .header-auth a {
+                padding: 8px 10px;
+                font-size: 0.75rem; /* Adjust text size for smaller screens */
+            }
+            .header-auth a i {
+                font-size: 1.05rem; /* Adjust icon size for smaller screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+            /* header-left should maintain row for toggle and logo */
+            .header-left {
+                width: 100%;
+                flex-direction: row; /* Keep toggle and logo side-by-side */
+                justify-content: space-between; /* Push toggle to left, logo to right */
+                align-items: center;
+                gap: 10px; /* Small gap between toggle and logo, adjust as needed */
+            }
+            .header-logo {
+                font-size: 1.4rem;
+                gap: 10px;
+                flex-direction: row;
+            }
+            .header-logo i {
+                font-size: 1.8rem;
+                margin-bottom: 0;
+            }
+            .logo-text {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .company-name {
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 0.8rem;
+            }
+            /* Re-introduce nav ul as column when menu is expanded (this would require JS to actually show/hide) */
+            nav { /* For demonstration, if nav were to show up as a column */
+                /* display: none; */ /* Still hidden, until JS shows it */
+                width: 100%;
+                margin-top: 10px;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 8px; /* Adjusted gap for mobile vertical nav */
+            }
+            nav a { /* Ensure mobile nav items are still readable */
+                font-size: 0.9rem;
+                padding: 5px 10px;
+                gap: 5px;
+                width: fit-content; /* Prevent stretching */
+                margin: 0 auto; /* Center individual nav items if menu is full width */
+            }
+            nav a i {
+                font-size: 0.95rem;
+            }
+            /* Authentication links on small mobile */
+            .header-auth a {
+                font-size: 0.7rem; /* Even smaller for very compact mobile */
+                padding: 6px 8px;
+                gap: 2px;
+            }
+            .header-auth a i {
+                font-size: 1rem;
+            }
+        }
+
+        /* licence */
+        /* --- License Upload Specific Styling --- */
+.license-upload-group {
+    text-align: center;
+    margin-bottom: 25px; /* Spacing below the upload section */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.license-upload-group .license-label {
+    font-size: 1em; /* Adjust label size as needed */
+    color: var(--text-on-light);
+    margin-bottom: 10px; /* Space between label and button */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.license-button {
+    background-color: #556B8D; /* A slightly different shade for variety */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.license-button:hover {
+    background-color: #4A5C70;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.license-button i {
+    font-size: 1em;
+}
+
+.file-name-display {
+    margin-top: 10px;
+    font-size: 0.85em;
+    color: var(--text-muted); /* Use a muted color for file name */
+    background-color: #F0F0F0; /* Light background for file name display */
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid #E0E0E0;
+    max-width: 250px; /* Limit width */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --- Professional Upload Sections Styling --- */
+.upload-sections-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Allows sections to wrap on smaller screens */
+    gap: 30px; /* Space between the two upload blocks */
+    justify-content: center;
+    margin-bottom: 40px; /* Space below the upload sections */
+    width: 100%;
+}
+
+.upload-block {
+    background-color: #f8f8f8; /* Light background for the block */
+    border: 1px solid #e0e0e0; /* Subtle border */
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Soft shadow */
+    flex: 1 1 calc(50% - 15px); /* Two columns: 50% width minus half the gap */
+    max-width: calc(50% - 15px); /* Ensures consistent sizing */
+    min-width: 280px; /* Prevent them from getting too small */
+    text-align: center;
+}
+
+.upload-block-label {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333; /* Darker text for labels */
+    margin-bottom: 20px; /* Space below the label */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center; /* Center label content */
+}
+
+.upload-block-label i {
+    font-size: 1.3em;
+    color: #007bff; /* A distinct accent color for upload icons */
+}
+
+/* Profile Picture Specifics */
+.profile-pic-upload-block .profile-pic-container {
+    margin-bottom: 15px; /* Space between image and button */
+}
+
+.profile-pic-upload-block .profile-pic-preview {
+    width: 120px; /* Slightly smaller for a tighter look */
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 15px; /* Space below image */
+}
+
+.profile-pic-upload-block .profile-pic-preview:hover {
+    border-color: #007bff;
+    transform: scale(1.03);
+}
+
+/* License Upload Specifics */
+.license-upload-block .license-upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Space between button and file name */
+    width: 100%; /* Take full width of its block */
+}
+
+/* General Upload Button Styling for both */
+.upload-button-styled {
+    background-color: #007bff; /* Primary blue for upload actions */
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.upload-button-styled:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.upload-button-styled i {
+    font-size: 1em;
+}
+
+/* File Name Display */
+.file-name-display {
+    font-size: 0.85em;
+    color: #555; /* Darker grey for readability */
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #e9e9e9;
+    max-width: 100%; /* Ensure it fits within its container */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left; /* Align text within the span */
+}
+
+/* Responsive adjustments for upload sections */
+@media (max-width: 768px) {
+    .upload-sections-wrapper {
+        flex-direction: column; /* Stack blocks vertically on small screens */
+        gap: 25px;
+    }
+
+    .upload-block {
+        flex: 1 1 100%; /* Take full width */
+        max-width: 100%;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .upload-block-label {
+        font-size: 1em;
+    }
+    .upload-button-styled {
+        font-size: 0.9em;
+        padding: 8px 15px;
+    }
+    .profile-pic-upload-block .profile-pic-preview {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <a href="HOME" class="header-logo">
+                <i class="fas fa-brain"></i>
+                <div class="logo-text">
+                    <span class="tagline">{{companyname}}</span>
+                    <span class="company-name">Prediction Model</span>
+                </div>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="HOME"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="DATA" ><i class="fas fa-chart-line"></i> Detail</a></li>
+                    <li><a href="History"><i class="fas fa-history"></i> History</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-auth">
+            {% if profile_name %}
+                <a href="about"><i class="fas fa-user-circle"></i> {{profile_name}}</a>
+                <a href="about"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+                <a href="signup" class="active"><i class="fas fa-user-plus"></i> sign_up</a>
+                <a href="login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            {% endif %}
+            <a href="about" ><i class="fas fa-info-circle"></i> About</a>
+        </div>
+    </header>
+    <main>
+    <div class="form-container">
+        <h2>Create Your Account</h2>
+        
+        <form action="{% url 'datainserted' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="upload-sections-wrapper">
+                <div class="upload-block profile-pic-upload-block">
+                    <label class="upload-block-label"><i class="fas fa-camera-retro"></i> Profile Picture</label>
+                    <div class="profile-pic-container">
+                        <img id="profilePicPreview" src="https://via.placeholder.com/130/ffffff/333333?text=👤" alt="Profile Picture" class="profile-pic-preview">
+                        <input type="file" id="photoUpload" name="profilePhoto" accept="image/*" style="display: none;">
+                        <button type="button" class="upload-button-styled" onclick="document.getElementById('photoUpload').click()">
+                            <i class="fas fa-upload"></i> Choose Photo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="upload-block license-upload-block">
+                    <label class="upload-block-label"><i class="fas fa-file-invoice"></i> Upload License/Certificate</label>
+                    <div class="license-upload-area">
+                        <input type="file" id="licenseUpload" name="licenseFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display: none;">
+                        <button type="button" class="upload-button-styled license-action-button" onclick="document.getElementById('licenseUpload').click()">
+                            <i class="fas fa-file-upload"></i> Select File
+                        </button>
+                        <span id="licenseFileName" class="file-name-display">No file chosen</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="companyName"><i class="fas fa-building"></i> Company Name:</label>
+                <input type="text" id="companyName" name="companyName" placeholder="Enter your company name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="companyNo"><i class="fas fa-phone"></i> Company Phone No:</label>
+                <input type="tel" id="companyNo" name="companyNo" placeholder="e.g., +1234567890" required>
+            </div>
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+            </div>
+            <div class="form-group">
+                <label for="department"><i class="fas fa-sitemap"></i> Department:</label>
+                <input type="text" id="department" name="department" placeholder="e.g., Marketing, Sales" required>
+            </div>
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> Username:</label>
+                <input type="text" id="username" name="username" placeholder="Choose a username" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+            </div>
+
+            {% if request.method == 'POST' %} {# Only show message after form submission #}
+                {% if is_license_authorized %}
+                    <p style="color: green; font-weight: bold; margin-top: 15px;">License Verified Successfully!</p>
+                {% else %}
+                    <p style="color: red; font-weight: bold; margin-top: 15px;">License verification failed. Please check your image.</p>
+                {% endif %}
+            {% endif %}
+
+            <button type="submit" class="form-submit-btn">Create Account</button>
+        </form>
+        <div class="form-link">
+            Already have an account? <a href="login.html">Sign In Here</a>
+        </div>
+    </div>
+</main>
+
+    <footer>
+        <p>&copy; 2024 INSPIRE Prediction Model. All rights reserved.</p>
+    </footer>
+
+    <script>
+
+// For Profile Picture Preview
+document.getElementById('photoUpload').addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePicPreview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        document.getElementById('profilePicPreview').src = "https://via.placeholder.com/130/ffffff/333333?text=👤"; // Fallback to default
+    }
+});
+
+// For License Upload File Name Display
+document.getElementById('licenseUpload').addEventListener('change', function() {
+    const fileNameSpan = document.getElementById('licenseFileName');
+    if (this.files.length > 0) {
+        fileNameSpan.textContent = this.files[0].name;
+    } else {
+        fileNameSpan.textContent = 'No file chosen';
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+        const profilePicInput = document.getElementById('photoUpload');
+        const profilePicPreview = document.getElementById('profilePicPreview');
+
+        profilePicInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePicPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Reset to default if no file is selected, using a light-themed placeholder
+                profilePicPreview.src = "https://via.placeholder.com/130/ffffff/333333?text=👤";
+            }
+        });
+
+
+        document.getElementById('createAccountBtn').addEventListener('click', function(event) {
+            event.preventDefault();
+            window.location.href = ''; // Or .php, .jsx, etc.
+        });
+
+
+    </script>
+</body>
+</html>

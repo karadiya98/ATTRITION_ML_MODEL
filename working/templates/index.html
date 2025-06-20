@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>INSPIRE - Predictive HR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Variables for easy theme management (Using INSPIRE's color palette) */
+        :root {
+            /* Core Backgrounds & Elements */
+            --primary-dark-bg: #0D1A26; /* Very deep, almost black blue-grey for main background */
+            --secondary-card-bg: #1A2E44; /* Dark blue-grey for cards and sections */
+            --tertiary-hover-bg: #21354F; /* Slightly lighter dark blue-grey for subtle hovers */
+
+            /* Accent & Highlight Colors - Inspired by data visualization/neural networks (INSPIRE's accents) */
+            --accent-main: #34D399; /* Bright, vibrant teal-green for primary highlights */
+            --accent-light: #6EE7B7; /* Lighter version of accent-main for soft glows */
+            --accent-dark: #06B6D4; /* A complementary vibrant cyan/blue for secondary highlights */
+
+            /* Text Colors */
+            --text-heading: #E2E8F0; /* Off-white for prominent headings */
+            --text-body: #A0AEC0; /* Light grey for main body text */
+            --text-muted: #718096; /* Darker grey for subtle text/details */
+
+            /* Borders & Shadows */
+            --border-subtle: rgba(255, 255, 255, 0.06); /* Very light border */
+            --shadow-primary: rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+            --shadow-glow: rgba(52, 211, 153, 0.3); /* Accent-driven shadow glow */
+
+            /* Gradient Definitions */
+            --gradient-1-start: var(--accent-main); /* Teal-green */
+            --gradient-1-end: var(--accent-dark); /* Cyan-blue */
+            --gradient-2-start: #3498DB; /* Classic blue for secondary actions */
+            --gradient-2-end: #2980B9; /* Darker blue */
+
+            /* Specific Component Colors */
+            --header-backdrop: rgba(13, 26, 38, 0.85); /* Slightly transparent based on primary-dark-bg */
+            --button-danger: #E74C3C; /* Retain strong red for danger */
+            --button-success: #2ECC71; /* Slightly brighter green for success */
+
+            /* Fonts (Using Inter for consistency with INSPIRE) */
+            --font-main: 'Inter', sans-serif;
+            --font-heading: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: linear-gradient(135deg, var(--primary-dark-bg), #08121A);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+            text-shadow: none;
+        }
+
+        /* Subtle background gradients/blobs for depth */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(52, 211, 153, 0.03) 0%, transparent 15%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.03) 0%, transparent 15%),
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.01) 0%, transparent 5%),
+                linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.9;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 10px 20px var(--shadow-glow); }
+            50% { transform: scale(1.02); box-shadow: 0 16px 30px rgba(52, 211, 153, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 10px 20px var(--shadow-glow); }
+        }
+
+        @keyframes jiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+            75% { transform: rotate(-2deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes underlineGrow {
+            from { width: 0; }
+            to { width: 100px; }
+        }
+
+        @keyframes headerFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* --- Header Section (Adopted from INSPIRE) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background-color: var(--header-backdrop);
+            box-shadow: 0 4px 15px var(--shadow-primary);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-radius: 0 0 15px 15px;
+            animation: headerFadeIn 0.8s ease-out forwards;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--accent-main);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 10px var(--shadow-glow);
+            text-decoration: none;
+            transition: text-shadow 0.3s ease;
+        }
+
+        .header-logo:hover {
+            text-shadow: 0 0 20px rgba(52, 211, 153, 0.8);
+        }
+
+        .header-logo i {
+            font-size: 2rem;
+            color: var(--accent-main);
+            transition: transform 0.3s ease;
+        }
+
+        .header-logo i:hover {
+            animation: bounce 0.6s ease-in-out infinite alternate;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-text .tagline {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-heading);
+        }
+
+        .logo-text .company-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--accent-dark);
+            opacity: 0.8;
+            margin-top: 2px;
+            margin-right: 60px;
+            line-height: 1;
+        }
+
+        .header-auth {
+            display: flex;
+            gap: 25px;
+        }
+
+        .header-auth a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            padding: 8px 15px;
+            border-radius: 6px;
+        }
+
+        .header-auth a:hover {
+            color: var(--text-heading);
+            transform: translateY(-3px) scale(1.02);
+            background-color: var(--tertiary-hover-bg);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-auth a.active {
+            color: var(--primary-dark-bg);
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            font-weight: 700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow-glow);
+        }
+
+        .header-auth a.active:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5);
+        }
+
+
+        /* --- Hero Section --- */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 3.8rem;
+            color: var(--text-heading);
+            margin-bottom: 25px;
+            text-shadow: 0 3px 6px var(--shadow-primary);
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        .hero p {
+            font-family: var(--font-main);
+            font-size: 1.3rem;
+            max-width: 750px;
+            margin-bottom: 40px;
+            color: var(--text-body);
+            line-height: 1.6;
+            text-shadow: none;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+        }
+
+        .cta-button {
+            background: linear-gradient(90deg, var(--gradient-1-start) 0%, var(--gradient-1-end) 100%);
+            color: var(--primary-dark-bg);
+            padding: 20px 40px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease; /* Ensure all properties transition smoothly */
+            box-shadow: 0 10px 20px var(--shadow-glow);
+            border: none;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards, pulse 2s infinite ease-in-out;
+            animation-delay: 0.6s;
+        }
+
+        .cta-button:hover {
+             transform: translateY(-10px) scale(0.98); /* Slight press down effect on click */
+            box-shadow: 0 15px 20px rgba(255, 255, 255, 0.5); /* Smaller, darker shadow on press */
+            background: linear-gradient(90deg, var(--accent-dark) 0%, var(--accent-main) 100%); /* Slight color shift */
+    }
+
+        .cta-button:active {
+            transform: translateY(-2px) scale(0.98); /* Slight press down effect on click */
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5); /* Smaller, darker shadow on press */
+            background: linear-gradient(90deg, var(--accent-dark) 0%, var(--accent-main) 100%); /* Slight color shift */
+        }
+
+        /* --- Section Common (Adopted from INSPIRE's card background) --- */
+        .section-common {
+            background-color: var(--secondary-card-bg);
+            padding: 90px 20px;
+            text-align: center;
+            box-shadow: inset 0 8px 25px rgba(0, 0, 0, 0.35);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            margin: 0;
+            color: var(--text-body);
+        }
+
+        .section-common h2 {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            margin-bottom: 40px;
+            color: var(--text-heading);
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.01em;
+            text-shadow: 0 2px 4px var(--shadow-primary);
+        }
+        .section-common h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -15px;
+            transform: translateX(-50%);
+            width: 0; /* Start with 0 width for animation */
+            height: 5px;
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            border-radius: 3px;
+            box-shadow: 0 0 15px var(--shadow-glow);
+            animation: underlineGrow 1s ease-out forwards;
+            animation-delay: 0.8s; /* Delay to appear after text */
+        }
+
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 70px;
+            margin-bottom: 70px;
+        }
+
+        .steps-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 50px;
+        }
+
+        .step {
+            background-color: var(--primary-dark-bg);
+            padding: 35px;
+            border-radius: 18px;
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+            box-shadow: 0 15px 30px var(--shadow-primary);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(8px);
+            opacity: 0; /* Initial state for entrance animation */
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+
+        .step:nth-child(1) { animation-delay: 1s; }
+        .step:nth-child(2) { animation-delay: 1.2s; }
+        .step:nth-child(3) { animation-delay: 1.4s; }
+        .step:nth-child(4) { animation-delay: 1.6s; }
+        .step:nth-child(5) { animation-delay: 1.8s; }
+        .step:nth-child(6) { animation-delay: 2.0s; }
+
+
+        .step:hover {
+            transform: translateY(-15px) scale(1.04);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 25px var(--shadow-glow);
+            border-color: var(--accent-main);
+            background-color: var(--tertiary-hover-bg);
+        }
+
+        .step .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--accent-main);
+            text-shadow: 0 0 15px var(--shadow-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .step:hover .icon {
+            animation: jiggle 0.4s ease-in-out;
+        }
+
+        .step p {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--text-heading);
+            text-shadow: none;
+            letter-spacing: 0.02em;
+        }
+
+        .benefits {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .benefit {
+            background-color: rgba(52, 211, 153, 0.15);
+            padding: 15px 30px;
+            border-radius: 35px;
+            font-size: 1rem;
+            color: var(--accent-main);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            cursor: default;
+            text-shadow: none;
+            letter-spacing: 0.03em;
+            opacity: 0;
+            animation: slideInRight 0.7s ease-out forwards; /* Changed to slideInRight */
+        }
+        .benefit:nth-child(1) { animation-delay: 2.2s; } /* Adjusted delays */
+        .benefit:nth-child(2) { animation-delay: 2.4s; }
+        .benefit:nth-child(3) { animation-delay: 2.6s; }
+        .benefit:nth-child(4) { animation-delay: 2.8s; }
+        .benefit:nth-child(5) { animation-delay: 3.0s; }
+
+
+        .benefit:hover {
+            background-color: rgba(52, 211, 153, 0.25);
+            transform: translateY(-5px) scale(1.03); /* More pronounced hover */
+            box-shadow: 0 8px 20px rgba(52, 211, 153, 0.3);
+        }
+
+        .benefit i {
+            margin-right: 10px;
+            color: var(--accent-main);
+            text-shadow: none;
+        }
+
+        footer {
+            background-color: var(--header-backdrop);
+            padding: 25px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            box-shadow: 0 -4px 10px var(--shadow-primary);
+            border-top: 1px solid var(--border-subtle);
+            font-family: var(--font-main);
+            letter-spacing: normal;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 3.2s; /* Delay for footer to appear last */
+        }
+
+        /* --- Responsive Adjustments (Kept largely similar, adapted to new variables) --- */
+        @media (max-width: 992px) {
+            header {
+                padding: 20px 30px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .header-left {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+            .header-auth {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+            .hero h1 {
+                font-size: 3rem;
+            }
+            .hero p {
+                font-size: 1.2rem;
+            }
+            .section-common h2 {
+                font-size: 2.5rem;
+            }
+            .steps-row {
+                gap: 40px;
+            }
+            .step {
+                width: 200px;
+            }
+            .step .icon {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+            .header-left {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .header-logo {
+                font-size: 1.4rem;
+                gap: 10px;
+                flex-direction: row;
+            }
+            .header-logo i {
+                font-size: 1.8rem;
+                margin-bottom: 0;
+            }
+            .logo-text {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .company-name {
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 0.8rem;
+            }
+            .hero {
+                padding: 60px 15px;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+            }
+            .hero p {
+                font-size: 1.1rem;
+                margin-bottom: 30px;
+            }
+            .cta-button {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+            .section-common {
+                padding: 60px 15px;
+            }
+            .section-common h2 {
+                font-size: 2.2rem;
+                margin-bottom: 30px;
+            }
+            .steps-container, .steps-row, .benefits {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            .step, .benefit {
+                width: 85%;
+                max-width: 300px;
+            }
+            .step .icon {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <a href="HOME" class="header-logo">
+                <i class="fas fa-brain"></i>
+                <div class="logo-text">
+                    <span class="tagline">H_&_M</span>
+                    <span class="company-name">Prediction Model</span>
+                </div>
+            </a>
+        </div>
+        <div class="header-auth">
+            <a href="signup">Sign_Up</a>
+            <a href="signin">Login</a>
+            <a href="about">About</a>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>INSPIRE: Revolutionizing HR with Predictive Analytics</h1>
+        <p>Harness the power of AI to proactively identify and mitigate employee attrition risks, fostering a more engaged and stable workforce. Our cutting-edge platform transforms your HR data into actionable insights, helping you retain top talent and optimize your human capital strategies. Predict, understand, and act before it's too late.</p>
+        <button id="getStartedBtn" class="cta-button">Explore the Future of Employee</button>
+    </div>
+
+    <section class="section-common">
+        <h2>How It Works</h2>
+        <div class="steps-container">
+            <div class="steps-row">
+                <div class="step">
+                    <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <p>Securely Upload Your Data</p>
+                </div>
+                <div class="step">
+                    <div class="icon"><i class="fas fa-brain"></i></div>
+                    <p>AI-Powered Attrition Prediction</p>
+                </div>
+                <div class="step">
+                    <div class="icon"><i class="fas fa-chart-pie"></i></div>
+                    <p>Visualize Insights & Take Action</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-common">
+        <h2>Key Features & Benefits</h2>
+        <div class="steps-container">
+            <div class="steps-row">
+                <div class="step">
+                    <div class="icon"><i class="fas fa-cogs"></i></div>
+                    <p>Automated Predictive Insights</p>
+                </div>
+                <div class="step">
+                    <div class="icon"><i class="fas fa-user-friends"></i></div>
+                    <p>Boost Employee Engagement</p>
+                </div>
+                <div class="step">
+                    <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                    <p>Proactive Talent Retention</p>
+                </div>
+            </div>
+            <div class="benefits">
+                <div class="benefit"><i class="fas fa-chart-bar"></i> Data-Driven HR Decisions</div>
+                <div class="benefit"><i class="fas fa-handshake"></i> Strengthen Talent Retention</div>
+                <div class="benefit"><i class="fas fa-sack-dollar"></i> Significant Cost Savings</div>
+                <div class="benefit"><i class="fas fa-lightbulb"></i> Actionable Recommendations</div>
+                <div class="benefit"><i class="fas fa-lock"></i> Data Security & Privacy</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        &copy; 2025 INSPIRE - Predictive HR. All rights reserved.
+    </footer>
+
+    <script>
+        // JavaScript to handle the button click and navigate
+        document.getElementById('getStartedBtn').onclick = function() {
+            window.location.href = 'HOME'; // Changed to 'DATA' as per your original navigation logic
+        };
+    </script>
+</body>
+</html>

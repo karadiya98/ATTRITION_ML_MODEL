@@ -1,0 +1,1 @@
+from .signup import User_Detail

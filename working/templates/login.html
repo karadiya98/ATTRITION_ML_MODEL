@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>INSPIRE - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Variables for easy theme management (UPDATED COLOR PALETTE) */
+        :root {
+            /* Core Backgrounds & Elements */
+            --primary-dark-bg: #0D1A26; /* Very deep, almost black blue-grey for main background */
+            --secondary-card-bg: #1A2E44; /* Dark blue-grey for cards and sections */
+            --tertiary-hover-bg: #21354F; /* Slightly lighter dark blue-grey for subtle hovers */
+
+            /* Accent & Highlight Colors - Inspired by data visualization/neural networks */
+            --accent-main: #34D399; /* Bright, vibrant teal-green for primary highlights (similar to your teal, but more 'techy') */
+            --accent-light: #6EE7B7; /* Lighter version of accent-main for soft glows */
+            --accent-dark: #06B6D4; /* A complementary vibrant cyan/blue for secondary highlights */
+
+            /* Text Colors */
+            --text-heading: #E2E8F0; /* Off-white for prominent headings */
+            --text-body: #A0AEC0; /* Light grey for main body text */
+            --text-muted: #718096; /* Darker grey for subtle text/details */
+
+            /* Borders & Shadows */
+            --border-subtle: rgba(255, 255, 255, 0.06); /* Very light border */
+            --shadow-primary: rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+            --shadow-glow: rgba(52, 211, 153, 0.3); /* Accent-driven shadow glow */
+
+            /* Gradient Definitions */
+            --gradient-1-start: var(--accent-main); /* Teal-green */
+            --gradient-1-end: var(--accent-dark); /* Cyan-blue */
+            --gradient-2-start: #3498DB; /* Classic blue for secondary actions */
+            --gradient-2-end: #2980B9; /* Darker blue */
+
+            /* Specific Component Colors */
+            --header-backdrop: rgba(13, 26, 38, 0.85); /* Slightly transparent based on primary-dark-bg */
+            --button-danger: #E74C3C; /* Retain strong red for danger */
+            --button-success: #2ECC71; /* Slightly brighter green for success */
+
+            /* Fonts */
+            --font-main: 'Inter', sans-serif; /* Your chosen font */
+            --font-heading: 'Inter', sans-serif; /* Keep Inter for consistency unless a specific display font is needed */
+        }
+
+       body {
+            font-family: var(--font-main);
+            background-color: #f6f5f6; /* Base light background */
+            color: var(--text-on-light); /* Dark text for contrast on light background */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Subtle animated background grid for depth */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; /* Adjust grid size */
+            opacity: 0.8;
+            z-index: -1;
+            pointer-events: none;
+            animation: pulseGrid 8s infinite alternate ease-in-out; /* Animation added */
+        }
+
+        /* --- Header Section --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: var(--primary-dark-bg); /* Darker gradient */
+            box-shadow: 0 4px 15px var(--shadow-primary); /* Stronger shadow */
+            backdrop-filter: blur(12px); /* Slightly more blur */
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--accent-main); /* Main accent color for logo */
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 10px var(--shadow-glow); /* Accent-driven text shadow */
+            text-decoration: none;
+        }
+
+        .header-logo i {
+            font-size: 2rem;
+            color: var(--accent-main);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-text .tagline {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-heading);
+        }
+
+        .logo-text .company-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            opacity: 0.8;
+            margin-top: 2px;
+            margin-right: 60px;
+            line-height: 1;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 35px;
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1.05rem;
+            padding: 8px 15px;
+            position: relative;
+            transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 3px;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-heading);
+            background-color: var(--tertiary-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        nav a:hover::after {
+            width: 80%;
+        }
+
+        nav a.active {
+            color: var(--accent-main);
+            font-weight: 600;
+            background-color: rgba(52, 211, 153, 0.15);
+            transform: translateY(-2px);
+        }
+
+        nav a.active::after {
+            width: 100%;
+            background: var(--accent-main);
+        }
+
+        .header-auth {
+            display: flex;
+            gap: 25px;
+        }
+
+        .header-auth a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.98rem;
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease; /* Added background-color and box-shadow to transition */
+            padding: 8px 15px; /* Added padding for consistency and button-like feel */
+            border-radius: 6px; /* Rounded corners */
+        }
+
+        .header-auth a:hover {
+            color: var(--text-heading);
+            transform: translateY(-2px);
+            background-color: var(--tertiary-hover-bg); /* Match nav hover background */
+        }
+
+        /* NEW CSS for active highlight in header-auth */
+        .header-auth a.active {
+            color: var(--primary-dark-bg); /* Dark text on bright button */
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            font-weight: 700; /* Bolder for active state */
+            transform: translateY(-2px); /* Maintain subtle lift */
+            box-shadow: 0 4px 15px var(--shadow-glow); /* Add a glow shadow */
+        }
+
+        .header-auth a.active:hover {
+            /* Keep the same active style on hover, or make it slightly more pronounced */
+            transform: translateY(-3px); /* Slightly more lift on hover for active */
+            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5); /* Stronger glow on hover */
+        }
+
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 992px) {
+            header {
+                padding: 20px 30px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .header-left {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+            nav ul {
+                width: 100%;
+                justify-content: center;
+                margin-left: 0;
+                gap: 20px;
+            }
+            .header-auth {
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+            .header-left {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .header-logo {
+                font-size: 1.4rem;
+                gap: 10px;
+                flex-direction: row;
+            }
+            .header-logo i {
+                font-size: 1.8rem;
+                margin-bottom: 0;
+            }
+            .logo-text {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .company-name {
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 0.8rem;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            /* Adjustments for the form on small screens */
+            .form-container {
+                padding: 20px;
+                margin: 20px auto;
+                width: 95%;
+            }
+        }
+
+        /* --- Login Form Styles (similar to Create Account) --- */
+        .form-container {
+            background-color: var(--secondary-card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px var(--shadow-primary), 0 0 20px var(--shadow-glow);
+            width: 90%;
+            max-width: 600px; /* Slightly narrower for login as it has fewer fields */
+            margin: 50px auto;
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-container h2 {
+            color: var(--text-heading);
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.2);
+            position: relative;
+        }
+
+        .form-container h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-main), var(--accent-dark));
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-body);
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 14px 18px;
+            background-color: var(--primary-dark-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-heading);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group input[type="password"]:focus {
+            border-color: var(--accent-main);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .form-submit-btn {
+            width: 100%;
+            padding: 15px 25px;
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            color: var(--primary-dark-bg); /* Dark text on bright gradient */
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-shadow: none;
+            margin-top: 20px;
+        }
+
+        .form-submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 211, 153, 0.4);
+        }
+
+        .form-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+
+        .form-link a {
+            color: var(--accent-main);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .form-link a:hover {
+            color: var(--accent-light);
+            text-decoration: underline;
+        }
+
+        .forgot-password-link {
+            text-align: right; /* Align to the right within the form-group */
+            margin-top: -10px; /* Pull it slightly up to reduce gap */
+            margin-bottom: 15px; /* Add some space below it */
+            font-size: 0.9rem;
+        }
+
+        .forgot-password-link a {
+            color: var(--text-muted); /* Muted color for less prominence */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password-link a:hover {
+            color: var(--accent-light);
+            text-decoration: underline;
+        }
+
+
+        /* new css for navigation bar */
+/* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Variables for easy theme management (UPDATED COLOR PALETTE) */
+        :root {
+            /* Core Backgrounds & Elements */
+            --primary-dark-bg: #0D1A26; /* Very deep, almost black blue-grey for main background */
+            --secondary-card-bg: #1A2E44; /* Dark blue-grey for cards and sections */
+            --tertiary-hover-bg: #21354F; /* Slightly lighter dark blue-grey for subtle hovers */
+
+            /* Accent & Highlight Colors - Inspired by data visualization/neural networks */
+            --accent-main: #34D399; /* Bright, vibrant teal-green for primary highlights (similar to your teal, but more 'techy') */
+            --accent-light: #6EE7B7; /* Lighter version of accent-main for soft glows */
+            --accent-dark: #06B6D4; /* A complementary vibrant cyan/blue for secondary highlights */
+
+            /* Text Colors */
+            --text-heading: #E2E8F0; /* Off-white for prominent headings */
+            --text-body: #A0AEC0; /* Light grey for main body text */
+            --text-muted: #718096; /* Darker grey for subtle text/details */
+            --text-on-light: #334155; /* Dark text for light backgrounds */
+
+            /* Borders & Shadows */
+            --border-subtle: rgba(255, 255, 255, 0.06); /* Very light border */
+            --shadow-primary: rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+            --shadow-glow: rgba(52, 211, 153, 0.3); /* Accent-driven shadow glow */
+
+            /* Gradient Definitions */
+            --gradient-1-start: var(--accent-main); /* Teal-green */
+            --gradient-1-end: var(--accent-dark); /* Cyan-blue */
+            --gradient-2-start: #3498DB; /* Classic blue for secondary actions */
+            --gradient-2-end: #2980B9; /* Darker blue */
+
+            /* Specific Component Colors */
+            --header-backdrop: rgba(13, 26, 38, 0.85); /* Slightly transparent based on primary-dark-bg */
+            --button-danger: #E74C3C; /* Retain strong red for danger */
+            --button-success: #2ECC71; /* Slightly brighter green for success */
+
+            /* Fonts */
+            --font-main: 'Inter', sans-serif; /* Your chosen font */
+            --font-heading: 'Inter', sans-serif; /* Keep Inter for consistency unless a specific display font is needed */
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #f6f5f6; /* Base light background */
+            color: var(--text-on-light); /* Dark text for contrast on light background */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Subtle animated background grid for depth */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; /* Adjust grid size */
+            opacity: 0.8;
+            z-index: -1;
+            pointer-events: none;
+            animation: pulseGrid 8s infinite alternate ease-in-out; /* Animation added */
+        }
+
+        @keyframes pulseGrid {
+            0% { background-color: rgba(52, 211, 153, 0.02); opacity: 0.8; }
+            50% { background-color: rgba(6, 182, 212, 0.02); opacity: 0.9; }
+            100% { background-color: rgba(52, 211, 153, 0.02); opacity: 0.8; }
+        }
+
+
+        /* --- Header Section --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background-color: var(--primary-dark-bg); /* Dark header */
+            box-shadow: 0 4px 15px var(--shadow-primary);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .header-logo {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--accent-main);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 0 10px var(--shadow-glow);
+            text-decoration: none;
+        }
+
+        .header-logo i {
+            font-size: 2rem;
+            color: var(--accent-main);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-text .tagline {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-heading);
+        }
+
+        .logo-text .company-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            opacity: 0.8;
+            margin-top: 2px;
+            margin-right: 60px;
+            line-height: 1;
+        }
+
+        /* Hamburger Menu Toggle */
+        .mobile-menu-toggle {
+            display: none; /* Hidden by default on large screens */
+            font-size: 1.8rem;
+            color: var(--text-heading);
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin-right: 20px; /* Space between toggle and logo */
+        }
+
+        .mobile-menu-toggle:hover {
+            background-color: var(--tertiary-hover-bg);
+            color: var(--accent-light);
+        }
+
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px; /* Slightly reduced gap between nav items */
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem; /* Reduced font size for nav text */
+            padding: 6px 12px; /* Reduced padding */
+            position: relative;
+            transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Slightly reduced gap between icon and text */
+        }
+
+        nav a i { /* Added style for icons in nav bar */
+            font-size: 1.05rem; /* Slightly reduced icon size to match smaller text */
+        }
+
+        /* --- Nav Hover Effect (Enhanced) --- */
+        nav a::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 3px;
+            width: 0;
+            /* height: 3px; // Old height */
+            height: 4px; /* Slightly thicker line for better visibility */
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: var(--text-heading);
+            /* background-color: var(--tertiary-hover-bg); // Old hover background */
+            background-color: rgba(6, 182, 212, 0.1); /* Lighter, more subtle hover background using accent-dark */
+            transform: translateY(-2px);
+        }
+
+        nav a:hover::after {
+            width: 80%;
+        }
+
+        /* --- Nav Active Effect (Enhanced) --- */
+        nav a.active {
+            /* Old active color: rgb(180, 197, 86) */
+            color: var(--accent-light); /* Use a vibrant accent color for active link text */
+            font-weight: 700; /* Make it bolder */
+            /* Old active background: rgba(208, 218, 214, 0.15) */
+            background-color: rgba(52, 211, 153, 0.25); /* More pronounced background using accent-main with higher opacity */
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(52, 211, 153, 0.3); /* Subtle shadow for depth */
+        }
+
+        nav a.active::after {
+            width: 100%;
+            /* Old background: var(--accent-main) */
+            background: linear-gradient(90deg, var(--accent-light), var(--accent-main), var(--accent-dark)); /* More dynamic gradient for active line */
+            height: 5px; /* Make active line even more prominent */
+            box-shadow: 0 1px 5px rgba(52, 211, 153, 0.5); /* Add a subtle glow to the active line */
+        }
+
+        .header-auth {
+            display: flex;
+            gap: 20px; /* Slightly reduced gap between auth items */
+        }
+
+        /* --- AUTHENTICATION/USER LINKS WITH ICON ABOVE TEXT --- */
+        .header-auth a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.8rem; /* Even smaller font size for text below icon */
+            font-weight: 500;
+            transition: color 0.3s ease, transform 0.2s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            padding: 8px 10px; /* Adjusted padding to accommodate vertical layout */
+            border-radius: 6px;
+            
+            display: flex;
+            flex-direction: column; /* ICON ABOVE TEXT */
+            align-items: center; /* Center icon and text horizontally */
+            gap: 3px; /* Reduced vertical gap between icon and text */
+            line-height: 1.2; /* Tighter line height for stacked text */
+        }
+
+        .header-auth a i {
+            font-size: 1.1rem; /* Slightly larger icon to stand out more when above text */
+            margin-bottom: 2px; /* Small margin below icon */
+        }
+
+
+        .header-auth a:hover {
+            color: var(--text-heading);
+            transform: translateY(-2px);
+            background-color: var(--tertiary-hover-bg);
+        }
+
+        .header-auth a.active {
+            color: var(--primary-dark-bg);
+            background: linear-gradient(90deg, var(--gradient-1-start), var(--gradient-1-end));
+            font-weight: 700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow-glow);
+        }
+
+        .header-auth a.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 211, 153, 0.5);
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 992px) {
+            /* Show hamburger, hide main nav */
+            .mobile-menu-toggle {
+                display: block; /* Show hamburger icon */
+            }
+            nav { /* Hide the full navigation on medium screens */
+                display: none;
+            }
+
+            header {
+                padding: 20px 30px;
+                flex-wrap: wrap;
+                justify-content: space-between; /* Keep logo and toggle separated */
+                gap: 15px;
+            }
+            .header-left {
+                width: auto; /* Allow header-left to shrink */
+                justify-content: flex-start; /* Align logo and toggle to the left */
+                gap: 15px;
+            }
+            /* nav ul { Moved to 'nav' selector above } */
+
+            .header-auth {
+                width: 100%; /* Make auth section take full width below header-left */
+                justify-content: center;
+                margin-top: 10px;
+                gap: 15px; /* Adjusted gap for smaller screens */
+            }
+            /* Ensure vertical stack on larger mobile/tablet too */
+            .header-auth a {
+                padding: 8px 10px;
+                font-size: 0.75rem; /* Adjust text size for smaller screens */
+            }
+            .header-auth a i {
+                font-size: 1.05rem; /* Adjust icon size for smaller screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 20px;
+                border-radius: 0;
+            }
+            /* header-left should maintain row for toggle and logo */
+            .header-left {
+                width: 100%;
+                flex-direction: row; /* Keep toggle and logo side-by-side */
+                justify-content: space-between; /* Push toggle to left, logo to right */
+                align-items: center;
+                gap: 10px; /* Small gap between toggle and logo, adjust as needed */
+            }
+            .header-logo {
+                font-size: 1.4rem;
+                gap: 10px;
+                flex-direction: row;
+            }
+            .header-logo i {
+                font-size: 1.8rem;
+                margin-bottom: 0;
+            }
+            .logo-text {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .company-name {
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 0.8rem;
+            }
+            /* Re-introduce nav ul as column when menu is expanded (this would require JS to actually show/hide) */
+            nav { /* For demonstration, if nav were to show up as a column */
+                /* display: none; */ /* Still hidden, until JS shows it */
+                width: 100%;
+                margin-top: 10px;
+            }
+            nav ul {
+                flex-direction: column;
+                gap: 8px; /* Adjusted gap for mobile vertical nav */
+            }
+            nav a { /* Ensure mobile nav items are still readable */
+                font-size: 0.9rem;
+                padding: 5px 10px;
+                gap: 5px;
+                width: fit-content; /* Prevent stretching */
+                margin: 0 auto; /* Center individual nav items if menu is full width */
+            }
+            nav a i {
+                font-size: 0.95rem;
+            }
+            /* Authentication links on small mobile */
+            .header-auth a {
+                font-size: 0.7rem; /* Even smaller for very compact mobile */
+                padding: 6px 8px;
+                gap: 2px;
+            }
+            .header-auth a i {
+                font-size: 1rem;
+            }
+        }
+
+        /* --- Main Content Area (Example) --- */
+        main {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .content-box {
+            background-color: #ffffff; /* Pure white for content */
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1), 0 0 15px rgba(52, 211, 153, 0.1);
+            max-width: 800px;
+            width: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.8s ease-out;
+            color: var(--text-on-light); /* Ensure text is dark on white */
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <div class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <a href="HOME" class="header-logo">
+                <i class="fas fa-brain"></i>
+                <div class="logo-text">
+                    
+                     <span class="tagline">{{companyname}}</span>
+                    
+                
+                    
+                    <span class="company-name">Prediction Model</span>
+
+                </div>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="HOME"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="DATA" ><i class="fas fa-chart-line"></i> Detail</a></li>
+                    <li><a href="History"><i class="fas fa-history"></i> History</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-auth">
+            {% if profile_name %}
+                <a href="about"><i class="fas fa-user-circle"></i> {{profile_name}}</a>
+                <a href="about"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+                <a href="signup"><i class="fas fa-user-plus"></i> sign_up</a>
+                <a href="login" class="active"><i class="fas fa-sign-in-alt"></i> Login</a>
+            {% endif %}
+            <a href="about"><i class="fas fa-info-circle"></i> About</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2>Login to Your Account</h2>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="usernameOrEmail"><i class="fas fa-user"></i> Username or Email:</label>
+                    <input type="text" id="usernameOrEmail" name="usernameOrEmail" placeholder="Enter your username or email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <div class="form-group forgot-password-link">
+                    <a href="forgot-password">Forgot Password?</a>
+                </div>
+                <button type="submit" class="form-submit-btn">Login</button>
+            </form>
+            <div class="form-link">
+                Don't have an account? <a href="signup">Sign Up Here</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
