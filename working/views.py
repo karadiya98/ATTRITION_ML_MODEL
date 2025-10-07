@@ -309,61 +309,55 @@ def logout(request):
         return render(request,"HOME.html")
     
 
-model = None
-model_loaded_successfully = False
-
-try:
-    # Attempt to load your CatBoost model from 'cat_model.pkl'
-    # IMPORTANT: Ensure 'cat_model.pkl' is in the 'predictor' app directory.
-    MODEL_PATH = os.path.join(settings.BASE_DIR, 'predictor', 'cat_model.pkl')
-    with open(MODEL_PATH, 'rb') as file:
-        model = joblib.load(file)
-    model_loaded_successfully = True
-    print(f"CatBoost model loaded successfully from {MODEL_PATH}.")
-
-except FileNotFoundError:
-    print("Warning: cat_model.pkl not found. Prediction will not be possible.")
-except Exception as e:
-    print(f"Error loading cat_model.pkl: {e}. Prediction will not be possible.")
-
-
-# --- The 'home' view from your example (kept for structural consistency if you need it) ---
-# You can remove this if you only need the prediction page.
-# my_attrition_project/working/views.py
-
-# my_attrition_project/working/views.py
+#  below is fn for attrition management 
 
 import os
 import io
-import pandas as pd
 import joblib
-import numpy as np # Make sure numpy is imported for np.where etc.
+import pandas as pd
+import numpy as np
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.shortcuts import render
 
-# Initialize model globally.
-model = None
-model_loaded_successfully = False
+# --- Global variables to store the loaded models and transformers ---
+scaler = None
+encoder = None
+cat_model = None
+models_loaded_successfully = False
 
 try:
-    # Attempt to load your XGBoost model from 'xgb_model.pkl'
-    MODEL_PATH = os.path.join(settings.BASE_DIR, 'working', 'xgb_model.pkl')
-    
-    print(f"Attempting to load model from: {MODEL_PATH}") # Diagnostic print
+    # Define paths to your .pkl files
+    # IMPORTANT: Replace 'your_django_app' with the actual name of your Django app
+    APP_NAME = 'working' # <--- Make sure this matches your app's directory name
+    SCALER_PATH = os.path.join(settings.BASE_DIR, APP_NAME, 'ml_models', 'scaler.pkl')
+    ENCODER_PATH = os.path.join(settings.BASE_DIR, APP_NAME, 'ml_models', 'encoder.pkl')
+    CAT_MODEL_PATH = os.path.join(settings.BASE_DIR, APP_NAME, 'ml_models', 'cat_model.pkl') # Assuming CatBoost model
 
-    with open(MODEL_PATH, 'rb') as file:
-        model = joblib.load(file)
-    model_loaded_successfully = True
-    print(f"XGBoost model loaded successfully from {MODEL_PATH}.")
+    print(f"Attempting to load scaler from: {SCALER_PATH}")
+    with open(SCALER_PATH, 'rb') as file:
+        scaler = joblib.load(file)
+    print(f"Scaler loaded successfully from {SCALER_PATH}.")
 
-except FileNotFoundError:
-    print(f"ERROR: xgb_model.pkl not found at {MODEL_PATH}. Prediction will not be possible.")
+    print(f"Attempting to load encoder from: {ENCODER_PATH}")
+    with open(ENCODER_PATH, 'rb') as file:
+        encoder = joblib.load(file)
+    print(f"Encoder loaded successfully from {ENCODER_PATH}.")
+
+    print(f"Attempting to load cat_model from: {CAT_MODEL_PATH}")
+    with open(CAT_MODEL_PATH, 'rb') as file:
+        cat_model = joblib.load(file)
+    print(f"CatBoost model loaded successfully from {CAT_MODEL_PATH}.")
+
+    models_loaded_successfully = True
+
+except FileNotFoundError as e:
+    print(f"ERROR: One or more .pkl files not found: {e}. Prediction will not be possible.")
 except Exception as e:
-    print(f"ERROR: Failed to load xgb_model.pkl from {MODEL_PATH}: {e}. Prediction will not be possible.")
+    print(f"ERROR: Failed to load .pkl files: {e}. Prediction will not be possible.")
 
 
 def home(request):
+    # This is your initial home page, if different from the prediction page
     print("Welcome to the Attrition Prediction Home Page!")
     return render(request, "index.html")
 
@@ -371,22 +365,26 @@ def predict_attrition(request):
     original_table_html = None
     predicted_table_html = None
     error_message = None
-    original_file_name = None
+    original_file_name = None # To display the name of the last uploaded file
 
-    if request.method == 'GET':
-        original_table_html = request.session.get('original_csv_html_attrition', None)
+    # --- Session Management for initial GET or new file upload ---
+    # Clear previous prediction results on initial GET request or when
+    # a new file is explicitly uploaded (to avoid stale predictions)
+    if request.method == 'GET' and 'predicted_csv_html_attrition' in request.session:
+        del request.session['predicted_csv_html_attrition']
+    
+    # If a new file is uploaded, clear any existing original/predicted data in session
+    # This handles switching files and ensuring only the latest is processed
+    if request.method == 'POST' and 'csv_file' in request.FILES:
+        if 'original_csv_html_attrition' in request.session:
+            del request.session['original_csv_html_attrition']
         if 'predicted_csv_html_attrition' in request.session:
             del request.session['predicted_csv_html_attrition']
         if 'original_file_name' in request.session:
             del request.session['original_file_name']
 
     if request.method == 'POST':
-        action = request.POST.get('action')
-
-        if 'original_csv_html_attrition' in request.session:
-            del request.session['original_csv_html_attrition']
-        if 'predicted_csv_html_attrition' in request.session:
-            del request.session['predicted_csv_html_attrition']
+        action = request.POST.get('action') # 'view_original' or 'predict'
 
         if 'csv_file' in request.FILES:
             uploaded_file = request.FILES['csv_file']
@@ -403,109 +401,144 @@ def predict_attrition(request):
                     if 'Unnamed: 0' in df.columns:
                         df = df.drop(columns=['Unnamed: 0'])
 
+                    # Store the original dataframe HTML in session
                     request.session['original_csv_html_attrition'] = df.to_html(
                         index=False,
                         classes='table table-striped table-bordered'
                     )
-                    original_table_html = request.session['original_csv_html_attrition']
-
+                    original_table_html = request.session['original_csv_html_attrition'] # Set for immediate display
 
                     if action == 'predict':
-                        if not model_loaded_successfully:
-                            error_message = "Critical Error: The actual ML model (xgb_model.pkl) could not be loaded. Prediction cannot be performed without the trained model. Please ensure the model file is correctly placed and valid."
-                            predicted_table_html = None
+                        if not models_loaded_successfully:
+                            error_message = "Critical Error: ML models (scaler, encoder, or cat_model) could not be loaded. Prediction cannot be performed."
                         else:
                             # --- START: FEATURE ENGINEERING (MUST MATCH TRAINING) ---
 
                             # 1. Drop irrelevant columns (if they exist in the input CSV)
+                            # Verify these with your friend's original notebook (ACC.ipynb)
                             columns_to_drop = ['EmployeeNumber', 'StandardHours', 'Over18']
-                            # Remove columns only if they actually exist in the DataFrame
                             df_processed = df.drop(columns=[col for col in columns_to_drop if col in df.columns], errors='ignore')
 
-                            # 2. Identify categorical columns for one-hot encoding
-                            #    This list MUST be accurate based on your friend's ACC.ipynb
-                            categorical_features_for_ohe = [
-                                'BusinessTravel', 'Department', 'EducationField', 'Gender',
-                                'JobRole', 'MaritalStatus', 'OverTime'
-                            ]
-
-                            # 3. Perform One-Hot Encoding
-                            #    'drop_first=True' is commonly used. Verify if your friend used it.
-                            #    'dtype=int' makes the new columns 0/1 integers.
-                            for col in categorical_features_for_ohe:
-                                if col not in df_processed.columns:
-                                    print(f"Warning: Categorical column '{col}' not found in uploaded CSV. Skipping one-hot encoding for this column.")
-                            
-                            df_encoded = pd.get_dummies(
-                                df_processed,
-                                columns=[col for col in categorical_features_for_ohe if col in df_processed.columns],
-                                drop_first=True,
-                                dtype=int
-                            )
-                            
-                            # --- END: FEATURE ENGINEERING ---
-
-
-                            # 4. Define the FINAL list of features that were fed into the TRAINED MODEL
-                            #    This list MUST contain EXACTLY 30 column names, in the EXACT order,
-                            #    as expected by your xgb_model.pkl.
-                            #    *** YOU NEED TO GET THIS LIST FROM YOUR FRIEND'S ACC.ipynb ***
-                            #    (e.g., from X_train.columns or model.feature_names_in_)
-                            #    This is a placeholder list; replace it with the actual 30 feature names.
-                            final_model_features = [
+                            # 2. Identify numerical and categorical columns expected by your model
+                            #    *** YOU NEED TO GET THESE LISTS FROM YOUR FRIEND'S ACC.ipynb ***
+                            #    These should be the columns BEFORE OneHotEncoding and Scaling
+                            numerical_features = [
                                 'Age', 'DailyRate', 'DistanceFromHome', 'Education', 'EmployeeCount',
                                 'EnvironmentSatisfaction', 'HourlyRate', 'JobInvolvement', 'JobLevel',
                                 'JobSatisfaction', 'MonthlyIncome', 'MonthlyRate', 'NumCompaniesWorked',
                                 'PercentSalaryHike', 'PerformanceRating', 'RelationshipSatisfaction',
                                 'StockOptionLevel', 'TotalWorkingYears', 'TrainingTimesLastYear',
                                 'WorkLifeBalance', 'YearsAtCompany', 'YearsInCurrentRole',
-                                'YearsSinceLastPromotion', 'YearsWithCurrManager',
-                                # These are example one-hot encoded columns.
-                                # Replace with your actual 1-hot encoded columns + numerical ones from friend's model!
-                                'BusinessTravel_Travel_Frequently', 'BusinessTravel_Travel_Rarely',
-                                'Department_Research & Development', 'Department_Sales',
-                                'EducationField_Life Sciences', 'EducationField_Marketing'
-                                # ... you will need 4 more columns here to reach 30 if using the OHE from analysis,
-                                # or more depending on original features + drop_first=True/False
+                                'YearsSinceLastPromotion', 'YearsWithCurrManager'
+                            ]
+                            categorical_features = [
+                                'BusinessTravel', 'Department', 'EducationField', 'Gender',
+                                'JobRole', 'MaritalStatus', 'OverTime'
                             ]
 
-                            # Check if the number of features matches BEFORE creating features_df
-                            if len(final_model_features) != 30:
-                                error_message = f"Critical Error: The 'final_model_features' list in views.py is not 30 features long. It has {len(final_model_features)}. It MUST match the 30 features your model expects."
-                                predicted_table_html = None
-                            elif not all(col in df_encoded.columns for col in final_model_features):
-                                missing_cols_for_model = [col for col in final_model_features if col not in df_encoded.columns]
-                                error_message = f"Critical Error: After preprocessing, some required model features are missing from the input data. Missing: {', '.join(missing_cols_for_model)}. Please ensure your CSV and preprocessing match the training data."
-                                predicted_table_html = None
-                            else:
-                                # Ensure feature order matches the trained model's expectation
-                                features_df = df_encoded[final_model_features].copy()
-                                features_array = features_df.values
+                            # Ensure all expected raw columns are present in the uploaded CSV
+                            missing_expected_raw_cols = [col for col in numerical_features + categorical_features if col not in df_processed.columns]
+                            if missing_expected_raw_cols:
+                                error_message = f"Missing required columns in CSV: {', '.join(missing_expected_raw_cols)}. Please check your input file."
+                                # Skip further processing if essential columns are missing
+                                raise ValueError("Missing required raw columns for prediction.")
 
-                                # Perform prediction using the loaded XGBoost model
-                                predictions = model.predict(features_array)
-                                print("Performing prediction using loaded XGBoost model.")
+                            # Separate numerical and categorical data
+                            df_numerical = df_processed[numerical_features]
+                            df_categorical = df_processed[categorical_features]
 
-                                # Add predicted attrition as a new column to the ORIGINAL DataFrame (df)
-                                # This ensures the final displayed table includes all original columns plus prediction
-                                df['Predicted_Attrition'] = np.where(predictions == 1, 'Yes', 'No')
+                            # Apply OneHotEncoder
+                            try:
+                                encoded_features = encoder.transform(df_categorical)
+                                # For newer sklearn (0.23+), use get_feature_names_out()
+                                encoded_feature_names = encoder.get_feature_names_out(categorical_features)
+                                df_encoded = pd.DataFrame(encoded_features, columns=encoded_feature_names, index=df_processed.index)
+                            except Exception as e:
+                                error_message = f"Error during One-Hot Encoding: {e}. Ensure the categorical columns in your CSV match the encoder's training data."
+                                raise ValueError(error_message) # Propagate to outer try-except
 
-                                request.session['predicted_csv_html_attrition'] = df.to_html(
-                                    index=False,
-                                    classes="table table-striped table-bordered"
-                                )
-                                predicted_table_html = request.session['predicted_csv_html_attrition']
+                            # Apply StandardScaler to numerical features
+                            try:
+                                scaled_numerical_features = scaler.transform(df_numerical)
+                                df_scaled_numerical = pd.DataFrame(scaled_numerical_features, columns=numerical_features, index=df_processed.index)
+                            except Exception as e:
+                                error_message = f"Error during Standardization: {e}. Ensure numerical columns in your CSV are appropriate for scaling."
+                                raise ValueError(error_message) # Propagate to outer try-except
 
-                    else: # If 'view_original' was clicked
-                        predicted_table_html = None
+                            # Concatenate processed numerical and encoded categorical features
+                            # The order of concatenation here must match the order during training
+                            # A common approach is: numerical_features + encoded_features
+                            final_features_df = pd.concat([df_scaled_numerical, df_encoded], axis=1)
+
+                            # --- VERY IMPORTANT: ALIGN COLUMNS TO TRAINING ORDER ---
+                            # Get the exact feature names and their order from your trained model (cat_model.pkl)
+                            # This is usually model.feature_names_in_ if it's a scikit-learn compatible model
+                            # Or from X_train.columns if you saved that list during training.
+                            # For CatBoost, it often handles feature names internally, but explicit alignment is safest.
+                            
+                            # Placeholder: You MUST replace this with the ACTUAL list of columns
+                            # used for training your cat_model.pkl, IN THAT EXACT ORDER.
+                            # Example (replace with actual feature names from your model, usually 40+ features)
+                            model_expected_features = [
+                                'Age', 'DailyRate', 'DistanceFromHome', 'Education', 'EmployeeCount', 'EnvironmentSatisfaction',
+                                'HourlyRate', 'JobInvolvement', 'JobLevel', 'JobSatisfaction', 'MonthlyIncome', 'MonthlyRate',
+                                'NumCompaniesWorked', 'PercentSalaryHike', 'PerformanceRating', 'RelationshipSatisfaction',
+                                'StockOptionLevel', 'TotalWorkingYears', 'TrainingTimesLastYear', 'WorkLifeBalance',
+                                'YearsAtCompany', 'YearsInCurrentRole', 'YearsSinceLastPromotion', 'YearsWithCurrManager',
+                                # Encoded features - THESE MUST BE EXACTLY AS GENERATED BY YOUR ENCODER DURING TRAINING
+                                'BusinessTravel_Travel_Frequently', 'BusinessTravel_Travel_Rarely',
+                                'Department_Research & Development', 'Department_Sales',
+                                'EducationField_Life Sciences', 'EducationField_Marketing', 'EducationField_Medical',
+                                'EducationField_Other', 'EducationField_Technical Degree', 'Gender_Male',
+                                'JobRole_Human Resources', 'JobRole_Laboratory Technician', 'JobRole_Manager',
+                                'JobRole_Manufacturing Director', 'JobRole_Research Director', 'JobRole_Research Scientist',
+                                'JobRole_Sales Executive', 'JobRole_Sales Representative',
+                                'MaritalStatus_Married', 'MaritalStatus_Single',
+                                'OverTime_Yes'
+                            ]
+                            
+                            # Ensure all expected features are present in the `final_features_df`
+                            missing_features_for_model = [f for f in model_expected_features if f not in final_features_df.columns]
+                            if missing_features_for_model:
+                                error_message = f"Error: After preprocessing, expected features for the model are missing: {', '.join(missing_features_for_model)}. This typically means the input CSV schema or preprocessing steps differ from training."
+                                raise ValueError(error_message) # Propagate to outer try-except
+                            
+                            # Reorder columns to match the trained model's expectation
+                            features_for_prediction = final_features_df[model_expected_features]
+                            
+                            # --- END: FEATURE ENGINEERING ---
+
+                            # Perform prediction using the loaded CatBoost model
+                            predictions = cat_model.predict(features_for_prediction)
+                            # If your model returns probabilities, and you want 0/1:
+                            # predictions = (cat_model.predict_proba(features_for_prediction)[:, 1] > 0.5).astype(int)
+                            print("Performing prediction using loaded CatBoost model.")
+
+                            # Add predicted attrition as a new column to the ORIGINAL DataFrame (df)
+                            df['Predicted_Attrition'] = np.where(predictions == 1, 'Yes', 'No')
+
+                            request.session['predicted_csv_html_attrition'] = df.to_html(
+                                index=False,
+                                classes="table table-striped table-bordered"
+                            )
+                            predicted_table_html = request.session['predicted_csv_html_attrition']
+
+                    # If 'view_original' was clicked, or if prediction failed,
+                    # just ensure original_table_html is set from session
+                    # (it's already set from the uploaded file section above)
+                    elif action == 'view_original':
+                        predicted_table_html = None # Explicitly clear any stale prediction display
                         original_table_html = request.session.get('original_csv_html_attrition', None)
 
                 except pd.errors.EmptyDataError:
                     error_message = "Uploaded CSV file is empty."
+                except ValueError as ve: # Catch custom ValueErrors from missing columns/features/preprocessing
+                    error_message = str(ve) # Display the specific error message
                 except Exception as e:
-                    error_message = f"An error occurred while processing the CSV file or making predictions: {e}"
+                    error_message = f"An unexpected error occurred while processing the CSV file or making predictions: {e}"
         else:
             error_message = "No CSV file uploaded. Please select a file."
+            # Clear all session data if no file is uploaded on a POST request
             if 'original_csv_html_attrition' in request.session:
                 del request.session['original_csv_html_attrition']
             if 'predicted_csv_html_attrition' in request.session:
@@ -513,17 +546,18 @@ def predict_attrition(request):
             if 'original_file_name' in request.session:
                 del request.session['original_file_name']
 
-    original_file_name = request.session.get('original_file_name', None)
-    if request.method == 'GET' and not error_message:
-         predicted_table_html = request.session.get('predicted_csv_html_attrition', None)
-         original_table_html = request.session.get('original_csv_html_attrition', None)
+    # Retrieve data from session for display on GET requests or after POST processing
+    if not error_message: # Only retrieve if no new error occurred in current POST
+        original_table_html = request.session.get('original_csv_html_attrition', None)
+        predicted_table_html = request.session.get('predicted_csv_html_attrition', None)
+        original_file_name = request.session.get('original_file_name', None)
 
 
     context = {
         'original_table_html': original_table_html,
         'predicted_table_html': predicted_table_html,
         'error_message': error_message,
-        'model_loaded': model_loaded_successfully,
+        'model_loaded': models_loaded_successfully,
         'original_file_name': original_file_name,
     }
-    return render(request, "detail.html", context)
+    return render(request, "detail.html", context) # Your attrition template is detail.html

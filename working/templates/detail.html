@@ -175,10 +175,10 @@
         <div class="results-section">
             {% if original_table_html and not predicted_table_html %}
                 <h2>Original Data</h2>
-                {{ original_table_html | safe }} 
+                {{ original_table_html | safe }}
             {% elif predicted_table_html %}
                 <h2>Prediction Results</h2>
-                {{ predicted_table_html | safe }} 
+                {{ predicted_table_html | safe }}
             {% endif %}
         </div>
     </div>
